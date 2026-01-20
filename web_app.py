@@ -11,7 +11,7 @@ st.set_page_config(page_title="リサイズくん Pro", page_icon="🖼️", lay
 with st.sidebar:
     st.header("⚙️ 全体の設定")
     common_prefix = st.text_input("基本の管理番号：", "")
-    new_width = st.slider("リサイズしたい「幅」 (px)：", 100, 2000, 640)
+    new_width = st.number_input("リサイズしたい「幅」 (px)：", min_value=10, max_value=5000, value=640, step=1)
     
     st.divider()
     
