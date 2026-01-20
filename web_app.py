@@ -10,14 +10,14 @@ st.set_page_config(page_title="リサイズくん Pro", page_icon="🖼️", lay
 # --- 🎨 サイドバー：設定と「ついてくる」一括保存ボタン ---
 with st.sidebar:
     st.header("⚙️ 全体の設定")
-    common_prefix = st.text_input("基本の管理番号：", "")
+    common_prefix = st.text_input("管理番号：", "")
     new_width = st.number_input("リサイズしたい「幅」 (px)：", min_value=10, max_value=5000, value=640, step=1)
     
     st.divider()
     
     # 💡 ここにメッセージとボタンを置くことで、スクロールしてもずっと左側にいます
     st.subheader("📦 まとめて保存")
-    st.write("画像が複数枚ある時はまとめて保存ができます。画像を選択した後にボタンが表示されます")
+    st.write("画像が複数枚ある時はまとめて保存が便利です。画像を選択した後に保存ボタンが表示されます")
     
     # 後で使うためにボタンの置き場所だけ確保しておく
     zip_placeholder = st.empty()
@@ -26,10 +26,10 @@ with st.sidebar:
     st.info("")
 
 # --- 🏠 メイン画面 ---
-st.title("🎨 画像リサイズ & 命名ツール")
+st.title("🎨 画像リサイズ & リネームくん")
 
 uploaded_files = st.file_uploader(
-    "画像をえらんでね（複数OK）：", 
+    "リサイズしたい画像をえらんでね（複数OK）：同じ管理番号の画像を入れるとリネームが便利です", 
     type=["jpg", "jpeg", "png"], 
     accept_multiple_files=True
 )
