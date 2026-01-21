@@ -5,7 +5,7 @@ import os
 import zipfile
 
 # ページの設定
-st.set_page_config(page_title="リサイズくん Pro", page_icon="🖼️", layout="wide")
+st.set_page_config(page_title="リサイズくん", page_icon="🖼️", layout="wide")
 
 # --- 🎨 サイドバー：設定 ---
 with st.sidebar:
@@ -21,10 +21,10 @@ with st.sidebar:
     zip_placeholder = st.empty()
     
     st.divider()
-    st.info("👧 作業お疲れ様！丁寧にリサイズするね。")
+    st.info("🐈 作業お疲れ様です！丁寧にリサイズしていきます。")
 
 # --- 🏠 メイン画面 ---
-st.title("🎨 画像リサイズ & 命名ツール")
+st.title("🎨 画像リサイズ & リネームツール")
 
 uploaded_files = st.file_uploader(
     "画像をえらんでね（複数OK）：", 
