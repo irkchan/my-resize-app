@@ -130,20 +130,21 @@ if uploaded_files:
                     use_container_width=True
                 )
 
-# --- 💡 1. ZIPの準備（箱を作る） ---
-zip_buffer = io.BytesIO()
-with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-    for image in processed_images:
-        zip_file.writestr(image["name"], image["data"])
-
-# --- 💡 2. サイドバーにボタンを表示（中身を渡す） ---
-zip_placeholder.download_button(
-    label="🚀 まとめてダウンロード (ZIP)",
-    data=zip_buffer.getvalue(),
-    file_name="resized_images.zip",
-    mime="application/zip",
-    use_container_width=True,
-    type="primary",
-    key="bulk_zip_download_unique"
-)
+# --- 💡 ここからが「画像がある時だけ」の処理 ---
+    # まとめて保存用のデータを準備
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+        for image in processed_images:
+            zip_file.writestr(image["name"], image["data"])
+    
+    # サイドバーのボタンを更新
+    zip_placeholder.download_button(
+        label="🚀 まとめてダウンロード (ZIP)",
+        data=zip_buffer.getvalue(),
+        file_name="resized_images.zip",
+        mime="application/zip",
+        use_container_width=True,
+        type="primary",
+        key="bulk_zip_download_unique"
+    )
     
