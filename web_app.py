@@ -91,7 +91,7 @@ if uploaded_files:
             with res_col1:
                 st.success(f"✅ 保存名: **{final_full_name}**")
             with res_col2:
-                st.download_button(label="💾 保存", data=img_data, file_name=final_full_name, key=f"individual_save_{i}, use_container_width=True)
+                st.download_button(label="💾 保存", data=img_data, file_name=final_full_name, key=f"individual_save_{i}", use_container_width=True), use_container_width=True)
             
          # --- 名前の組み立て（賢いバージョン） ---
             if indiv_prefix == "":
