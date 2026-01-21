@@ -58,9 +58,14 @@ if uploaded_files:
             with col_suffix:
                 indiv_suffix = st.selectbox("ラベル", options=suffix_options, index=0, key=f"suffix_{i}")
             
-            # 名前の組み立て
-            chosen_suffix = "" if indiv_suffix == "（なし）" else indiv_suffix
-            final_full_name = f"{indiv_prefix}{chosen_suffix}{ext}"
+         # --- 名前の組み立て（賢いバージョン） ---
+            if indiv_prefix == "":
+                # 💡 管理番号が空なら、ラベルも無視して「元の名前」をそのまま使う
+                final_full_name = original_name
+            else:
+                # 管理番号が入っている時だけ、ラベルを組み合わせてリネームする
+                chosen_suffix = "" if indiv_suffix == "（なし）" else indiv_suffix
+                final_full_name = f"{indiv_prefix}{chosen_suffix}{ext}"
             
             # リサイズ処理
             old_width, old_height = img.size
