@@ -91,7 +91,7 @@ if uploaded_files:
             with res_col1:
                 st.success(f"✅ 保存名: **{final_full_name}**")
             with res_col2:
-                st.download_button(label="💾 保存", data=img_data, file_name=final_full_name, key=f"btn_{i}", use_container_width=True)
+                st.download_button(label="💾 保存", data=img_data, file_name=final_full_name, key=f"individual_save_{i}, use_container_width=True)
             
          # --- 名前の組み立て（賢いバージョン） ---
             if indiv_prefix == "":
@@ -121,7 +121,7 @@ if uploaded_files:
                     label="💾 保存",
                     data=img_data,
                     file_name=final_full_name,
-                    key=f"btn_{i}",
+                    key="all_zip_download",
                     use_container_width=True
                 )
 
@@ -131,13 +131,14 @@ if uploaded_files:
         for image in processed_images:
             zip_file.writestr(image["name"], image["data"])
     
-    # サイドバーの確保しておいた場所にボタンを表示
+   # サイドバーの確保しておいた場所にボタンを表示
     zip_placeholder.download_button(
         label="🚀 まとめてダウンロード (ZIP)",
         data=zip_buffer.getvalue(),
         file_name="resized_images.zip",
         mime="application/zip",
         use_container_width=True,
-        type="primary"
+        type="primary",
+        key="all_zip_download_button" # 💡 ここを独自の固定名に変える
     )
     
