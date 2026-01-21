@@ -53,10 +53,45 @@ if uploaded_files:
             with col_org:
                 st.write("📎 **元の名前**")
                 st.caption(original_name)
+            
             with col_head:
-                indiv_prefix = st.text_input("新しい管理番号", value=common_prefix, key=f"head_{i}")
+                # 💡 ここがポイント！
+                # 全体の設定(common_prefix)が空なら、個別に好きな文字を打てる。
+                # 全体の設定に何か入っていれば、それが自動で入る。
+                indiv_prefix = st.text_input(
+                    "新しい管理番号", 
+                    value=common_prefix, 
+                    key=f"head_{i}",
+                    placeholder="空欄なら元の名前を使用"
+                )
+            
             with col_suffix:
                 indiv_suffix = st.selectbox("ラベル", options=suffix_options, index=0, key=f"suffix_{i}")
+            
+            # --- 💡 名前の組み立てルール ---
+            if indiv_prefix == "":
+                # 管理番号が空なら、ラベルも付けず「元の名前」のまま
+                final_full_name = original_name
+            else:
+                # 管理番号があるなら、ラベルと組み合わせる
+                chosen_suffix = "" if indiv_suffix == "（なし）" else indiv_suffix
+                final_full_name = f"{indiv_prefix}{chosen_suffix}{ext}"
+            
+            # 以降、リサイズと保存ボタンの処理（今のコードと同じ）
+            old_width, old_height = img.size
+            new_height = int(old_height * (new_width / old_width))
+            img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            buf = io.BytesIO()
+            img_resized.save(buf, format=img.format, quality=95)
+            img_data = buf.getvalue()
+            processed_images.append({"name": final_full_name, "data": img_data})
+
+            res_col1, res_col2 = st.columns([3, 1])
+            with res_col1:
+                st.success(f"✅ 保存名: **{final_full_name}**")
+            with res_col2:
+                st.download_button(label="💾 保存", data=img_data, file_name=final_full_name, key=f"btn_{i}", use_container_width=True)
             
          # --- 名前の組み立て（賢いバージョン） ---
             if indiv_prefix == "":
