@@ -135,14 +135,15 @@ if uploaded_files:
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
         for image in processed_images:
             zip_file.writestr(image["name"], image["data"])
-    
-   zip_placeholder.download_button(
+
+# ↓ここを一番左（スペース0個）にする
+zip_placeholder.download_button(
     label="🚀 まとめてダウンロード (ZIP)",
     data=zip_buffer.getvalue(),
     file_name="resized_images.zip",
     mime="application/zip",
     use_container_width=True,
     type="primary",
-    key="bulk_zip_download_unique" # ←ここをこの通りに書き換えてください
+    key="bulk_zip_download_unique"
 )
     
