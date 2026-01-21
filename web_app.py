@@ -130,13 +130,13 @@ if uploaded_files:
                     use_container_width=True
                 )
 
-    # --- 💡 サイドバーに「一括保存ボタン」を出現させる ---
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        for image in processed_images:
-            zip_file.writestr(image["name"], image["data"])
+# --- 💡 1. ZIPの準備（箱を作る） ---
+zip_buffer = io.BytesIO()
+with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+    for image in processed_images:
+        zip_file.writestr(image["name"], image["data"])
 
-# ↓ここを一番左（スペース0個）にする
+# --- 💡 2. サイドバーにボタンを表示（中身を渡す） ---
 zip_placeholder.download_button(
     label="🚀 まとめてダウンロード (ZIP)",
     data=zip_buffer.getvalue(),
