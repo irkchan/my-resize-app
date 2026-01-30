@@ -5,26 +5,31 @@ import os
 import zipfile
 
 # ページの設定
-st.set_page_config(page_title="リサイズくん", page_icon="🖼️", layout="wide")
+st.set_page_config(page_title="命名＆リサイズくん", page_icon="🖼️", layout="wide")
+
+# キャッシュ掃除
+st.cache_data.clear()
 
 # --- 🎨 サイドバー：設定 ---
 with st.sidebar:
     st.header("⚙️ 全体の設定")
-    common_prefix = st.text_input("基本の管理番号：", "", placeholder="空欄なら個別設定が優先されます")
-    new_width = st.number_input("リサイズしたい「幅」 (px)：", min_value=10, max_value=5000, value=640, step=1)
+    common_prefix = st.text_input("基本の管理番号：", "", placeholder="例: ABC-001")
+    
+    st.divider()
+    # 🌟 リネームのみ機能を追加
+    no_resize = st.checkbox("リサイズしない（名前変更のみ）", value=False)
+    
+    if not no_resize:
+        new_width = st.number_input("リサイズしたい「幅」 (px)：", min_value=10, max_value=5000, value=640, step=1)
+    else:
+        st.info("ℹ️ 元のサイズを維持してリネームします")
     
     st.divider()
     st.subheader("📦 まとめて保存")
-    st.write("画像を選択した後にボタンが表示されます")
-    
-    # ボタンの置き場所を確保
     zip_placeholder = st.empty()
-    
-    st.divider()
-    st.info("🐈 作業お疲れ様です！丁寧にリサイズしていきます。")
 
 # --- 🏠 メイン画面 ---
-st.title("🎨 画像リサイズ & リネームツール")
+st.title("🎨 画像リサイズ & 命名ツール")
 
 uploaded_files = st.file_uploader(
     "画像をえらんでね（複数OK）：", 
@@ -33,7 +38,7 @@ uploaded_files = st.file_uploader(
 )
 
 if uploaded_files:
-    st.subheader(f"📝 1枚ずつの確認・設定 ({len(uploaded_files)}枚)")
+    st.subheader(f"📝 設定 ({len(uploaded_files)}枚)")
     
     suffix_options = ["_after", "_before", "_main", "_s1", "_s2", "_s3", "_s4", "（なし）"]
     processed_images = []
@@ -53,7 +58,6 @@ if uploaded_files:
                 st.caption(original_name)
             
             with col_head:
-                # 全体の設定があればそれを初期値に、なければ空にする
                 indiv_prefix = st.text_input(
                     "新しい管理番号", 
                     value=common_prefix, 
@@ -64,31 +68,33 @@ if uploaded_files:
             with col_suffix:
                 indiv_suffix = st.selectbox("ラベル", options=suffix_options, index=0, key=f"suffix_{i}")
             
-            # --- 名前の組み立てルール ---
+            # --- 命名処理 ---
             if indiv_prefix == "":
-                # 管理番号が空なら、ラベルも付けず元の名前
                 final_full_name = original_name
             else:
-                # 管理番号があるなら、ラベルと組み合わせる
                 chosen_suffix = "" if indiv_suffix == "（なし）" else indiv_suffix
                 final_full_name = f"{indiv_prefix}{chosen_suffix}{ext}"
             
-            # --- リサイズ処理 ---
-            old_width, old_height = img.size
-            new_height = int(old_height * (new_width / old_width))
-            img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            # --- リサイズ処理（チェックボックスで分岐） ---
+            if no_resize:
+                # サイズ維持
+                img_final = img
+            else:
+                # 指定の幅にリサイズ
+                old_width, old_height = img.size
+                new_height = int(old_height * (new_width / old_width))
+                img_final = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
             
+            # 保存用データ作成
             buf = io.BytesIO()
-            img_resized.save(buf, format=img.format, quality=95)
+            img_final.save(buf, format=img.format, quality=95)
             img_data = buf.getvalue()
             processed_images.append({"name": final_full_name, "data": img_data})
 
-            # --- 個別保存ボタン ---
             res_col1, res_col2 = st.columns([3, 1])
             with res_col1:
                 st.success(f"✅ 保存名: **{final_full_name}**")
             with res_col2:
-                # keyを一意に固定（individual_save_0, 1...）
                 st.download_button(
                     label="💾 保存", 
                     data=img_data, 
@@ -97,13 +103,12 @@ if uploaded_files:
                     use_container_width=True
                 )
 
-    # --- まとめて保存用のZIP作成（インデントは if uploaded_files の中） ---
+    # ZIP作成
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
         for image in processed_images:
             zip_file.writestr(image["name"], image["data"])
     
-    # サイドバーのボタンを表示（keyを完全に別名にする）
     zip_placeholder.download_button(
         label="🚀 まとめてダウンロード (ZIP)",
         data=zip_buffer.getvalue(),
@@ -111,5 +116,5 @@ if uploaded_files:
         mime="application/zip",
         use_container_width=True,
         type="primary",
-        key="bulk_zip_download_unique_final"
+        key="bulk_zip_download_final"
     )
