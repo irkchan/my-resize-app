@@ -5,7 +5,7 @@ import os
 import zipfile
 
 # ページの設定
-st.set_page_config(page_title="命名＆リサイズくん", page_icon="🖼️", layout="wide")
+st.set_page_config(page_title="命名＆リサイズくん Pro", page_icon="🖼️", layout="wide")
 
 # キャッシュ掃除
 st.cache_data.clear()
@@ -16,7 +16,7 @@ with st.sidebar:
     common_prefix = st.text_input("基本の管理番号：", "", placeholder="例: ABC-001")
     
     st.divider()
-    # 🌟 リネームのみ機能を追加
+    # リサイズ機能のON/OFF
     no_resize = st.checkbox("リサイズしない（名前変更のみ）", value=False)
     
     if not no_resize:
@@ -40,7 +40,13 @@ uploaded_files = st.file_uploader(
 if uploaded_files:
     st.subheader(f"📝 設定 ({len(uploaded_files)}枚)")
     
-    suffix_options = ["_after", "_before", "_main", "_s1", "_s2", "_s3", "_s4", "（なし）"]
+    # ラベルの選択肢をs10まで拡張＋自由入力を追加
+    suffix_options = [
+        "_after", "_before", "_main", 
+        "_s1", "_s2", "_s3", "_s4", "_s5", 
+        "_s6", "_s7", "_s8", "_s9", "_s10", 
+        "（なし）", "（自由入力）"
+    ]
     processed_images = []
 
     for i, file in enumerate(uploaded_files):
@@ -67,20 +73,29 @@ if uploaded_files:
             
             with col_suffix:
                 indiv_suffix = st.selectbox("ラベル", options=suffix_options, index=0, key=f"suffix_{i}")
+                
+                # 「自由入力」が選ばれた時だけ入力欄を出す
+                custom_suffix = ""
+                if indiv_suffix == "（自由入力）":
+                    custom_suffix = st.text_input("自由なラベルを入力：", key=f"custom_{i}", placeholder="例: _cut")
             
-            # --- 命名処理 ---
+            # --- 命名処理のロジック ---
             if indiv_prefix == "":
                 final_full_name = original_name
             else:
-                chosen_suffix = "" if indiv_suffix == "（なし）" else indiv_suffix
-                final_full_name = f"{indiv_prefix}{chosen_suffix}{ext}"
+                if indiv_suffix == "（なし）":
+                    actual_suffix = ""
+                elif indiv_suffix == "（自由入力）":
+                    actual_suffix = custom_suffix
+                else:
+                    actual_suffix = indiv_suffix
+                
+                final_full_name = f"{indiv_prefix}{actual_suffix}{ext}"
             
-            # --- リサイズ処理（チェックボックスで分岐） ---
+            # --- リサイズ処理 ---
             if no_resize:
-                # サイズ維持
                 img_final = img
             else:
-                # 指定の幅にリサイズ
                 old_width, old_height = img.size
                 new_height = int(old_height * (new_width / old_width))
                 img_final = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
@@ -116,5 +131,5 @@ if uploaded_files:
         mime="application/zip",
         use_container_width=True,
         type="primary",
-        key="bulk_zip_download_final"
+        key="bulk_zip_download_final_pro"
     )
